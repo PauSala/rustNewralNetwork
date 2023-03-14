@@ -43,7 +43,7 @@ impl Network {
         for i in 0..epochs {
             let mut err: f64 = 0.0;
 
-            for (index, item) in x_train.rows().into_iter().by_ref().enumerate() {
+            for (index, item) in x_train.rows().into_iter().enumerate() {
                 let mut output = item.to_owned().insert_axis(ndarray::Axis(0));
                 for layer in self.layers.iter_mut() {
 
