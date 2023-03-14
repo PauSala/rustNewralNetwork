@@ -42,7 +42,7 @@ fn main() {
         .map(|x| *x as f64);
 
     //Build network
-    let layer = FullyConnectedLayer::new(28 * 8, 40);
+    let layer = FullyConnectedLayer::new(28 * 28, 40);
     let second_layer = ActivationLayer::new(tanh, tanh_prime);
     let third_layer = FullyConnectedLayer::new(40, 20);
     let fourth_layer = ActivationLayer::new(tanh, tanh_prime);
@@ -76,7 +76,7 @@ fn main() {
                 print!("\nResult: {:#.1}", result[4]);
                 println!("\n{:#.1?}\n", _test_labels.slice(s![image_num..5, ..]));
             }
-            None => print!("\nSome error occured"),
+            None => print!("\nSome error occurred"),
         }
     }
 }
