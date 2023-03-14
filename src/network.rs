@@ -23,7 +23,7 @@ impl Network {
                 match layer.forward_propagation(output) {
                     Ok(data) => output = data,
                     Err(e) => {
-                        print!("Error: {}", e);
+                        print!("Error occurred: {}", e);
                         return None
                     },
                 }
@@ -50,7 +50,7 @@ impl Network {
                     match layer.forward_propagation(output){
                         Ok(data) => output = data,
                         Err(e) => {
-                            print!("Error: {}", e);
+                            print!("Error occurred: {}", e);
                             return None
                         },
                     }
@@ -64,7 +64,7 @@ impl Network {
                     match layer.backward_propagation(error, learning_rate){
                         Ok(data) => error = data,
                         Err(e) => {
-                            print!("Error: {}", e);
+                            print!("Error occurred: {}", e);
                             return None
                         },
                     }
