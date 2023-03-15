@@ -64,10 +64,11 @@ fn main() {
     network.add(Box::new(fiveth_layer));
     network.add(Box::new(sixth_layer));
 
-    let fit = network.fit(&train_data, &train_labels, 50, 0.01);
+    //Fit
+    let fit = network.fit(&train_data, &train_labels, 1, 0.01);
+    //Predict
     if fit.is_some() {
         match network.predict(_test_data) {
-
             Some(result) => {
                 print!("\nResult: {:#.1}", result[0]);
                 print!("\nResult: {:#.1}", result[1]);
@@ -75,6 +76,7 @@ fn main() {
                 print!("\nResult: {:#.1}", result[3]);
                 print!("\nResult: {:#.1}", result[4]);
                 println!("\n{:#.1?}\n", _test_labels.slice(s![image_num..5, ..]));
+                network.serialize()
             }
             None => print!("\nSome error occurred"),
         }

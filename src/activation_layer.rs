@@ -1,6 +1,6 @@
 use ndarray::Array2;
 
-use crate::layer::Layer;
+use crate::layer::{Layer, LayerType, SerializedLayer};
 
 pub struct ActivationLayer {
     input: Array2<f64>,
@@ -30,5 +30,16 @@ impl Layer for ActivationLayer {
         _learning_rate: f64,
     ) -> Result<Array2<f64>, String> {
         Ok((self.activation_prime)(&self.input) * output_error)
+    }
+    fn get_type(&mut self) -> crate::layer::LayerType {
+        LayerType::ActivationLayer
+    }
+    fn to_serialized(&mut self) -> Option<SerializedLayer> {
+        let serialized = SerializedLayer{
+            layer_name: String::from("ActivationLayer"),
+            weights: Vec::new(),
+            bias: Vec::new()
+        };
+        Some(serialized)
     }
 }

@@ -1,9 +1,10 @@
+use crate::layer::{Layer, SerializedLayer};
 use ndarray::Array2;
-
-use crate::layer::Layer;
+use serde::{ser::SerializeStruct, Serialize, Serializer};
+use std::{fs::File, io::Write};
 
 pub struct Network {
-    pub loss:fn(&Array2<f64>, &Array2<f64>) -> f64,
+    pub loss: fn(&Array2<f64>, &Array2<f64>) -> f64,
     pub loss_prime: fn(&Array2<f64>, &Array2<f64>) -> Array2<f64>,
     pub layers: Vec<Box<dyn Layer>>,
 }
@@ -19,13 +20,12 @@ impl Network {
         for item in input_data.rows().into_iter().by_ref() {
             let mut output: Array2<f64> = item.to_owned().insert_axis(ndarray::Axis(0));
             for layer in self.layers.iter_mut() {
-
                 match layer.forward_propagation(output) {
                     Ok(data) => output = data,
                     Err(e) => {
                         print!("Error occurred: {}", e);
-                        return None
-                    },
+                        return None;
+                    }
                 }
             }
             result.push(output);
@@ -46,13 +46,12 @@ impl Network {
             for (index, item) in x_train.rows().into_iter().enumerate() {
                 let mut output = item.to_owned().insert_axis(ndarray::Axis(0));
                 for layer in self.layers.iter_mut() {
-
-                    match layer.forward_propagation(output){
+                    match layer.forward_propagation(output) {
                         Ok(data) => output = data,
                         Err(e) => {
                             print!("Error occurred: {}", e);
-                            return None
-                        },
+                            return None;
+                        }
                     }
                 }
                 let y = y_train.row(index).to_owned().insert_axis(ndarray::Axis(0));
@@ -61,12 +60,12 @@ impl Network {
                 let mut error = (self.loss_prime)(&y, &output);
 
                 for layer in self.layers.iter_mut().rev() {
-                    match layer.backward_propagation(error, learning_rate){
+                    match layer.backward_propagation(error, learning_rate) {
                         Ok(data) => error = data,
                         Err(e) => {
                             print!("Error occurred: {}", e);
-                            return None
-                        },
+                            return None;
+                        }
                     }
                 }
             }
@@ -75,5 +74,36 @@ impl Network {
             print!("\nEpoch: {} Error: {}", i, err);
         }
         Some(())
+    }
+
+    pub fn serialize(&mut self) {
+        let mut serialized_layers: Vec<SerializedLayer> = Vec::new();
+        for layer in self.layers.iter_mut() {
+            let data = layer.to_serialized();
+            serialized_layers.push(data.unwrap());
+        }
+        let serialized_model = SerializedModel {
+            layers: serialized_layers,
+        };
+        let data = serde_json::to_string(&serialized_model);
+        let mut f = File::create("data.json").expect("Unable to create file");
+        f.write(data.unwrap().as_bytes())
+            .expect("Unable to write data");
+    }
+}
+
+struct SerializedModel {
+    layers: Vec<SerializedLayer>,
+}
+
+impl Serialize for SerializedModel {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        // 3 is the number of fields in the struct.
+        let mut state = serializer.serialize_struct("SerializedModel", 1)?;
+        state.serialize_field("Layers", &self.layers)?;
+        state.end()
     }
 }
