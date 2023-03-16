@@ -101,7 +101,6 @@ impl Serialize for SerializedModel {
     where
         S: Serializer,
     {
-        // 3 is the number of fields in the struct.
         let mut state = serializer.serialize_struct("SerializedModel", 1)?;
         state.serialize_field("Layers", &self.layers)?;
         state.end()
