@@ -4,8 +4,8 @@ use serde::{ser::SerializeStruct, Serialize, Serializer};
 use std::{fs::File, io::Write};
 
 pub struct Network {
-    pub loss: fn(&Array2<f64>, &Array2<f64>) -> f64,
-    pub loss_prime: fn(&Array2<f64>, &Array2<f64>) -> Array2<f64>,
+    pub loss: fn(&Array2<f32>, &Array2<f32>) -> f32,
+    pub loss_prime: fn(&Array2<f32>, &Array2<f32>) -> Array2<f32>,
     pub layers: Vec<Box<dyn Layer>>,
 }
 
@@ -14,11 +14,11 @@ impl Network {
         self.layers.push(layer);
     }
 
-    pub fn predict(&mut self, input_data: Array2<f64>) -> Option<Vec<Array2<f64>>> {
-        let mut result: Vec<Array2<f64>> = Vec::new();
+    pub fn predict(&mut self, input_data: Array2<f32>) -> Option<Vec<Array2<f32>>> {
+        let mut result: Vec<Array2<f32>> = Vec::new();
 
         for item in input_data.rows().into_iter().by_ref() {
-            let mut output: Array2<f64> = item.to_owned().insert_axis(ndarray::Axis(0));
+            let mut output: Array2<f32> = item.to_owned().insert_axis(ndarray::Axis(0));
             for layer in self.layers.iter_mut() {
                 match layer.forward_propagation(output) {
                     Ok(data) => output = data,
@@ -35,13 +35,13 @@ impl Network {
 
     pub fn fit(
         &mut self,
-        x_train: &Array2<f64>,
-        y_train: &Array2<f64>,
+        x_train: &Array2<f32>,
+        y_train: &Array2<f32>,
         epochs: usize,
-        learning_rate: f64,
+        learning_rate: f32,
     ) -> Option<()> {
         for i in 0..epochs {
-            let mut err: f64 = 0.0;
+            let mut err: f32 = 0.0;
 
             for (index, item) in x_train.rows().into_iter().enumerate() {
                 let mut output = item.to_owned().insert_axis(ndarray::Axis(0));
@@ -70,7 +70,7 @@ impl Network {
                 }
             }
 
-            err = err / (x_train.len() as f64);
+            err = err / (x_train.len() as f32);
             print!("\nEpoch: {} Error: {}", i, err);
         }
         Some(())
@@ -86,7 +86,7 @@ impl Network {
             layers: serialized_layers,
         };
         let data = serde_json::to_string(&serialized_model);
-        let mut f = File::create("data.json").expect("Unable to create file");
+        let mut f = File::create("model.json").expect("Unable to create file");
         f.write(data.unwrap().as_bytes())
             .expect("Unable to write data");
     }

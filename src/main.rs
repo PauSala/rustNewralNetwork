@@ -26,27 +26,27 @@ fn main() {
     // Can use an Array2 or Array3 here (Array3 for visualization)
     let train_data = Array2::from_shape_vec((50_000, 28 * 28), trn_img)
         .expect("Error converting images to Array3 struct")
-        .map(|x| *x as f64 / 256.0);
+        .map(|x| *x as f32 / 256.0);
 
     // Convert the returned Mnist struct to Array2 format
-    let train_labels: Array2<f64> = Array2::from_shape_vec((50_000, 10), trn_lbl)
+    let train_labels: Array2<f32> = Array2::from_shape_vec((50_000, 10), trn_lbl)
         .expect("Error converting training labels to Array2 struct")
-        .map(|x| *x as f64);
+        .map(|x| *x as f32);
 
     let _test_data = Array2::from_shape_vec((10_000, 28 * 28), tst_img)
         .expect("Error converting images to Array2 struct")
-        .map(|x| *x as f64 / 256.0);
+        .map(|x| *x as f32 / 256.0);
 
-    let _test_labels: Array2<f64> = Array2::from_shape_vec((10_000, 10), tst_lbl)
+    let _test_labels: Array2<f32> = Array2::from_shape_vec((10_000, 10), tst_lbl)
         .expect("Error converting testing labels to Array2 struct")
-        .map(|x| *x as f64);
+        .map(|x| *x as f32);
 
     //Build network
-    let layer = FullyConnectedLayer::new(28 * 28, 40);
+    let layer = FullyConnectedLayer::new(28 * 28, 30);
     let second_layer = ActivationLayer::new(tanh, tanh_prime);
-    let third_layer = FullyConnectedLayer::new(40, 20);
+    let third_layer = FullyConnectedLayer::new(30, 15);
     let fourth_layer = ActivationLayer::new(tanh, tanh_prime);
-    let fiveth_layer = FullyConnectedLayer::new(20, 10);
+    let fiveth_layer = FullyConnectedLayer::new(15, 10);
     let sixth_layer = ActivationLayer::new(tanh, tanh_prime);
 
     let loss = mse;
@@ -65,7 +65,7 @@ fn main() {
     network.add(Box::new(sixth_layer));
 
     //Fit
-    let fit = network.fit(&train_data, &train_labels, 1, 0.01);
+    let fit = network.fit(&train_data, &train_labels, 50, 0.1);
     //Predict
     if fit.is_some() {
         match network.predict(_test_data) {

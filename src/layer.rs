@@ -2,8 +2,8 @@ use ndarray::Array2;
 use serde::{Serialize, Serializer, ser::SerializeStruct};
 
 pub trait Layer{
-    fn forward_propagation(&mut self, input: Array2<f64>) -> Result<Array2<f64>, String>;
-    fn backward_propagation(&mut self, output_error: Array2<f64>, learning_rate: f64) -> Result<Array2<f64>, String>;
+    fn forward_propagation(&mut self, input: Array2<f32>) -> Result<Array2<f32>, String>;
+    fn backward_propagation(&mut self, output_error: Array2<f32>, learning_rate: f32) -> Result<Array2<f32>, String>;
     fn get_type(&mut self) -> LayerType;
     fn to_serialized(&mut self) -> Option<SerializedLayer>;
 }
@@ -15,8 +15,8 @@ pub enum LayerType {
 
 pub struct SerializedLayer {
     pub layer_name: String, 
-    pub weights: Vec<f64>,
-    pub bias: Vec<f64>,
+    pub weights: Vec<f32>,
+    pub bias: Vec<f32>,
 }
 
 impl Serialize for SerializedLayer {
